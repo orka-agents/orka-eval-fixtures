@@ -16,7 +16,7 @@ type entry struct {
 // Cache holds at most Capacity entries and evicts the least recently used.
 // It is safe for concurrent use.
 type Cache struct {
-	mu       sync.Mutex
+	mu       sync.RWMutex
 	capacity int
 	ttl      time.Duration
 	now      func() time.Time
@@ -39,17 +39,17 @@ func New(capacity int, ttl time.Duration) *Cache {
 }
 
 // Get returns the value for key and marks it recently used. An expired entry
-// is removed and reported as missing.
+// is reported as missing; Set and eviction remove it later. Readers share the
+// lock so concurrent lookups don't wait on each other.
 func (c *Cache) Get(key string) (any, bool) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+	c.mu.RLock()
+	defer c.mu.RUnlock()
 	element, ok := c.items[key]
 	if !ok {
 		return nil, false
 	}
 	e := element.Value.(*entry)
 	if !c.now().Before(e.expires) {
-		c.removeElement(element)
 		return nil, false
 	}
 	c.order.MoveToFront(element)
