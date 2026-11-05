@@ -18,11 +18,9 @@ func Join(root, rel string) (string, error) {
 	}
 	root = filepath.Clean(root)
 	joined := filepath.Join(root, rel)
-	within, err := filepath.Rel(root, joined)
-	if err != nil {
-		return "", ErrEscapesRoot
-	}
-	if within == ".." || strings.HasPrefix(within, ".."+string(filepath.Separator)) {
+	// filepath.Join cleans the result, so a path inside root always starts
+	// with root.
+	if !strings.HasPrefix(joined, root) {
 		return "", ErrEscapesRoot
 	}
 	return joined, nil
