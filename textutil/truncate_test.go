@@ -1,6 +1,7 @@
 package textutil
 
 import (
+	"math"
 	"testing"
 	"unicode/utf8"
 )
@@ -16,6 +17,11 @@ func TestTruncate(t *testing.T) {
 		{in: "hello world", max: 8, want: "hello…"},
 		{in: "héllo wörld", max: 9, want: "héllo…"},
 		{in: "abc", max: 2, want: ""},
+		// ASCII prefix followed by a multi-byte character at the cut.
+		{in: "abcdéfgh", max: 7, want: "abcd…"},
+		{in: "abcdéfgh", max: 8, want: "abcd…"},
+		{in: "abcdéfgh", max: 9, want: "abcdéfgh"},
+		{in: "abcéfgh", max: 7, want: "abc…"},
 	}
 	for _, tt := range tests {
 		got := Truncate(tt.in, tt.max)
@@ -27,6 +33,18 @@ func TestTruncate(t *testing.T) {
 		}
 		if !utf8.ValidString(got) {
 			t.Fatalf("Truncate(%q, %d) = %q is not valid UTF-8", tt.in, tt.max, got)
+		}
+	}
+}
+
+func TestTruncateHandlesExtremeLimits(t *testing.T) {
+	for _, limit := range []int{math.MinInt, math.MinInt + 2, -1, math.MaxInt} {
+		got := Truncate("hello world", limit)
+		if limit >= len("hello world") && got != "hello world" {
+			t.Fatalf("Truncate(_, %d) = %q", limit, got)
+		}
+		if !utf8.ValidString(got) {
+			t.Fatalf("Truncate(_, %d) = %q is not valid UTF-8", limit, got)
 		}
 	}
 }
