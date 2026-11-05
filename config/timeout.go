@@ -2,6 +2,7 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -14,6 +15,9 @@ const (
 	MinTimeout     = time.Second
 	MaxTimeout     = 60 * time.Second
 )
+
+// ErrInvalidTimeout is wrapped by every ParseTimeout error.
+var ErrInvalidTimeout = errors.New("config: invalid timeout")
 
 // ParseTimeout parses a timeout written as a Go duration ("45s") or a whole
 // number of seconds ("45"). Empty means DefaultTimeout. A value above
@@ -29,11 +33,11 @@ func ParseTimeout(raw string) (time.Duration, error) {
 	} else {
 		d, err = time.ParseDuration(raw)
 		if err != nil {
-			return 0, fmt.Errorf("config: invalid timeout %q", raw)
+			return 0, fmt.Errorf("%w %q", ErrInvalidTimeout, raw)
 		}
 	}
 	if d < MinTimeout {
-		return 0, fmt.Errorf("config: timeout %s is below %s", d, MinTimeout)
+		return 0, fmt.Errorf("%w: %s is below %s", ErrInvalidTimeout, d, MinTimeout)
 	}
 	return min(d, MaxTimeout), nil
 }
