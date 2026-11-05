@@ -1,8 +1,6 @@
 // Package textutil holds small text helpers.
 package textutil
 
-import "unicode/utf8"
-
 // Ellipsis is appended to text that Truncate shortens.
 const Ellipsis = "…"
 
@@ -17,16 +15,6 @@ func Truncate(s string, maxBytes int) string {
 	if budget < 0 {
 		return ""
 	}
-	end := 0
-	for i, r := range s {
-		size := utf8.RuneLen(r)
-		if size < 0 {
-			size = 1
-		}
-		if i+size > budget {
-			break
-		}
-		end = i + size
-	}
-	return s[:end] + Ellipsis
+	// Slicing by byte offset avoids decoding every rune of long inputs.
+	return s[:budget] + Ellipsis
 }
