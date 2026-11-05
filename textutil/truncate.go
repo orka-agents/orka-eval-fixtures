@@ -17,6 +17,12 @@ func Truncate(s string, maxBytes int) string {
 	if budget < 0 {
 		return ""
 	}
+	// Every byte of an ASCII prefix is a whole character, so the prefix can
+	// be cut at any byte. budget < len(s) also holds when maxBytes is so
+	// negative that the subtraction above wrapped around.
+	if budget < len(s) && isASCII(s[:budget]) {
+		return s[:budget] + Ellipsis
+	}
 	end := 0
 	for i, r := range s {
 		size := utf8.RuneLen(r)
@@ -29,4 +35,13 @@ func Truncate(s string, maxBytes int) string {
 		end = i + size
 	}
 	return s[:end] + Ellipsis
+}
+
+func isASCII(s string) bool {
+	for i := 0; i < len(s); i++ {
+		if s[i] >= utf8.RuneSelf {
+			return false
+		}
+	}
+	return true
 }
