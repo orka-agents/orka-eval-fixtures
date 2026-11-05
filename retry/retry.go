@@ -17,8 +17,8 @@ type Policy struct {
 	MaxDelay time.Duration
 }
 
-// Do calls fn until it succeeds, the attempts run out or ctx ends. It returns
-// the last error from fn, or ctx's error when ctx ends first.
+// Do calls fn until it succeeds or the attempts run out, and returns the last
+// error from fn. fn receives ctx and should return promptly once it ends.
 func Do(ctx context.Context, p Policy, fn func(context.Context) error) error {
 	attempts := max(p.MaxAttempts, 1)
 	delay := p.BaseDelay
@@ -30,13 +30,7 @@ func Do(ctx context.Context, p Policy, fn func(context.Context) error) error {
 		if attempt == attempts {
 			return err
 		}
-		timer := time.NewTimer(delay)
-		select {
-		case <-ctx.Done():
-			timer.Stop()
-			return ctx.Err()
-		case <-timer.C:
-		}
+		time.Sleep(delay)
 		delay = min(delay*2, p.MaxDelay)
 	}
 }
