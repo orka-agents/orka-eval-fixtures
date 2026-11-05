@@ -74,6 +74,19 @@ func (c *Cache) Set(key string, value any) {
 	}
 }
 
+// Delete removes key from the cache. It reports whether key was present,
+// expired or not.
+func (c *Cache) Delete(key string) bool {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	element, ok := c.items[key]
+	if !ok {
+		return false
+	}
+	c.removeElement(element)
+	return true
+}
+
 func (c *Cache) removeElement(element *list.Element) {
 	c.order.Remove(element)
 	delete(c.items, element.Value.(*entry).key)
