@@ -31,3 +31,22 @@ func TestEntriesExpire(t *testing.T) {
 		t.Fatal("a should have expired")
 	}
 }
+
+func TestDelete(t *testing.T) {
+	c := New(2, time.Minute)
+	c.Set("a", 1)
+	c.Set("b", 2)
+	if !c.Delete("a") {
+		t.Fatal("Delete(a) = false")
+	}
+	if c.Delete("a") {
+		t.Fatal("second Delete(a) = true")
+	}
+	if _, ok := c.Get("a"); ok {
+		t.Fatal("a is still cached")
+	}
+	c.Set("c", 3)
+	if _, ok := c.Get("b"); !ok {
+		t.Fatal("b was evicted although the cache had room")
+	}
+}
