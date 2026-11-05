@@ -14,7 +14,7 @@ func TestParseTimeout(t *testing.T) {
 		{in: "", want: DefaultTimeout},
 		{in: "45s", want: 45 * time.Second},
 		{in: "2m", want: MaxTimeout},
-		{in: "500ms", wantErr: true},
+		{in: "500ms", want: MinTimeout},
 		{in: "soon", wantErr: true},
 	}
 	for _, tt := range tests {
