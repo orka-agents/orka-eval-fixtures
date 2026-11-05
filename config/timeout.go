@@ -16,24 +16,24 @@ const (
 )
 
 // ParseTimeout parses a timeout written as a Go duration ("45s") or a whole
-// number of seconds ("45"). Empty means DefaultTimeout. A value above
-// MaxTimeout is clamped to MaxTimeout; a value below MinTimeout is an error.
+// number of seconds ("45"). Empty means DefaultTimeout. A value outside
+// [MinTimeout, MaxTimeout] is clamped into that range, so a setting written
+// for another service still yields a usable timeout.
 func ParseTimeout(raw string) (time.Duration, error) {
 	raw = strings.TrimSpace(raw)
 	if raw == "" {
 		return DefaultTimeout, nil
 	}
-	var d time.Duration
-	if seconds, err := strconv.Atoi(raw); err == nil {
-		d = time.Duration(seconds) * time.Second
-	} else {
-		d, err = time.ParseDuration(raw)
-		if err != nil {
-			return 0, fmt.Errorf("config: invalid timeout %q", raw)
-		}
+	d, err := parseDuration(raw)
+	if err != nil {
+		return 0, fmt.Errorf("config: invalid timeout %q", raw)
 	}
-	if d < MinTimeout {
-		return 0, fmt.Errorf("config: timeout %s is below %s", d, MinTimeout)
+	return min(max(d, MinTimeout), MaxTimeout), nil
+}
+
+func parseDuration(raw string) (time.Duration, error) {
+	if seconds, err := strconv.ParseInt(raw, 10, 64); err == nil {
+		return time.Duration(seconds), nil
 	}
-	return min(d, MaxTimeout), nil
+	return time.ParseDuration(raw)
 }
