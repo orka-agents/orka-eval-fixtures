@@ -9,6 +9,9 @@ const Ellipsis = "…"
 // Truncate returns s unchanged when it fits in maxBytes. Otherwise it returns
 // the longest prefix of s that, followed by Ellipsis, fits in maxBytes. It
 // never splits a UTF-8 sequence. A maxBytes too small for Ellipsis returns "".
+//
+// maxBytes counts bytes, not characters: Ellipsis alone is three bytes. Use it
+// for storage or protocol limits, not for display width.
 func Truncate(s string, maxBytes int) string {
 	if len(s) <= maxBytes {
 		return s
