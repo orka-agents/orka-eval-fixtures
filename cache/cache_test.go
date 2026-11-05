@@ -31,3 +31,13 @@ func TestEntriesExpire(t *testing.T) {
 		t.Fatal("a should have expired")
 	}
 }
+
+func BenchmarkParallelGet(b *testing.B) {
+	c := New(128, time.Minute)
+	c.Set("hot", 1)
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			c.Get("hot")
+		}
+	})
+}
