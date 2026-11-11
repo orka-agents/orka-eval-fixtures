@@ -34,5 +34,16 @@ func WriteFileAtomic(path string, data []byte, perm os.FileMode) (err error) {
 	if err = os.Chmod(tmp, perm); err != nil {
 		return err
 	}
-	return os.Rename(tmp, path)
+	if err = os.Rename(tmp, path); err != nil {
+		return err
+	}
+	dir, err := os.Open(filepath.Dir(path))
+	if err != nil {
+		return err
+	}
+	if err = dir.Sync(); err != nil {
+		_ = dir.Close()
+		return err
+	}
+	return dir.Close()
 }
