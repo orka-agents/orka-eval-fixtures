@@ -29,7 +29,7 @@ func ParseTimeout(raw string) (time.Duration, error) {
 	} else {
 		d, err = time.ParseDuration(raw)
 		if err != nil {
-			return 0, fmt.Errorf("config: invalid timeout %q", raw)
+			return 0, fmt.Errorf("config: invalid timeout %q: want a duration like \"45s\" or a whole number of seconds", raw)
 		}
 	}
 	if d < MinTimeout {
