@@ -74,6 +74,13 @@ func (c *Cache) Set(key string, value any) {
 	}
 }
 
+// Len returns the number of entries, including expired ones not yet removed.
+func (c *Cache) Len() int {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return c.order.Len()
+}
+
 func (c *Cache) removeElement(element *list.Element) {
 	c.order.Remove(element)
 	delete(c.items, element.Value.(*entry).key)
