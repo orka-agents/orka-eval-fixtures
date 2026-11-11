@@ -61,13 +61,13 @@ func (c *Cache) Get(key string) (any, bool) {
 func (c *Cache) Set(key string, value any) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	expires := c.now().Add(c.ttl)
 	if element, ok := c.items[key]; ok {
 		e := element.Value.(*entry)
-		e.value, e.expires = value, expires
+		e.value = value
 		c.order.MoveToFront(element)
 		return
 	}
+	expires := c.now().Add(c.ttl)
 	c.items[key] = c.order.PushFront(&entry{key: key, value: value, expires: expires})
 	if c.order.Len() > c.capacity {
 		c.removeElement(c.order.Back())
