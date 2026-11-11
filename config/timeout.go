@@ -15,8 +15,8 @@ const (
 	MaxTimeout     = 60 * time.Second
 )
 
-// ParseTimeout parses a timeout written as a Go duration ("45s") or a whole
-// number of seconds ("45"). Empty means DefaultTimeout. A value above
+// ParseTimeout parses a timeout written as a Go duration ("45s") or a number
+// of seconds ("45" or "1.5"). Empty means DefaultTimeout. A value above
 // MaxTimeout is clamped to MaxTimeout; a value below MinTimeout is an error.
 func ParseTimeout(raw string) (time.Duration, error) {
 	raw = strings.TrimSpace(raw)
@@ -24,7 +24,7 @@ func ParseTimeout(raw string) (time.Duration, error) {
 		return DefaultTimeout, nil
 	}
 	var d time.Duration
-	if seconds, err := strconv.Atoi(raw); err == nil {
+	if seconds, err := strconv.ParseFloat(raw, 64); err == nil {
 		d = time.Duration(seconds) * time.Second
 	} else {
 		d, err = time.ParseDuration(raw)
