@@ -22,7 +22,7 @@ func Join(root, rel string) (string, error) {
 	if err != nil {
 		return "", ErrEscapesRoot
 	}
-	if within == ".." || strings.HasPrefix(within, ".."+string(filepath.Separator)) {
+	if strings.HasPrefix(within, ".."+string(filepath.Separator)) {
 		return "", ErrEscapesRoot
 	}
 	return joined, nil
