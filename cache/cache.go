@@ -74,6 +74,23 @@ func (c *Cache) Set(key string, value any) {
 	}
 }
 
+// Purge removes every expired entry and returns how many it removed.
+func (c *Cache) Purge() int {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	now := c.now()
+	removed := 0
+	for element := c.order.Front(); element != nil; {
+		next := element.Next()
+		if !now.Before(element.Value.(*entry).expires) {
+			c.removeElement(element)
+			removed++
+		}
+		element = next
+	}
+	return removed
+}
+
 func (c *Cache) removeElement(element *list.Element) {
 	c.order.Remove(element)
 	delete(c.items, element.Value.(*entry).key)
