@@ -18,7 +18,9 @@ type Policy struct {
 }
 
 // Do calls fn until it succeeds, the attempts run out or ctx ends. It returns
-// the last error from fn, or ctx's error when ctx ends first.
+// the last error from fn, or ctx's error when ctx ends first. The waits are
+// BaseDelay, 2*BaseDelay, 4*BaseDelay and so on, each capped at MaxDelay; there
+// is no wait after the last attempt.
 func Do(ctx context.Context, p Policy, fn func(context.Context) error) error {
 	attempts := max(p.MaxAttempts, 1)
 	delay := p.BaseDelay
