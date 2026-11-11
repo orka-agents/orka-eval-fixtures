@@ -21,6 +21,22 @@ func TestEvictsLeastRecentlyUsed(t *testing.T) {
 	}
 }
 
+func TestPurge(t *testing.T) {
+	now := time.Unix(0, 0)
+	c := New(3, time.Second)
+	c.now = func() time.Time { return now }
+	c.Set("a", 1)
+	c.Set("b", 2)
+	now = now.Add(time.Second)
+	c.Set("c", 3)
+	if removed := c.Purge(); removed != 2 {
+		t.Fatalf("Purge() = %d, want 2", removed)
+	}
+	if _, ok := c.Get("c"); !ok {
+		t.Fatal("c is missing")
+	}
+}
+
 func TestEntriesExpire(t *testing.T) {
 	now := time.Unix(0, 0)
 	c := New(2, time.Second)
