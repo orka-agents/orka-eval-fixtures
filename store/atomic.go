@@ -24,15 +24,17 @@ func WriteFileAtomic(path string, data []byte, perm os.FileMode) (err error) {
 		_ = f.Close()
 		return err
 	}
+	if err = os.Chmod(tmp, perm); err != nil {
+		_ = f.Close()
+		return err
+	}
+	if err = os.Rename(tmp, path); err != nil {
+		_ = f.Close()
+		return err
+	}
 	if err = f.Sync(); err != nil {
 		_ = f.Close()
 		return err
 	}
-	if err = f.Close(); err != nil {
-		return err
-	}
-	if err = os.Chmod(tmp, perm); err != nil {
-		return err
-	}
-	return os.Rename(tmp, path)
+	return f.Close()
 }
