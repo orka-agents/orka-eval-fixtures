@@ -21,6 +21,16 @@ func TestEvictsLeastRecentlyUsed(t *testing.T) {
 	}
 }
 
+func TestLen(t *testing.T) {
+	c := New(2, time.Minute)
+	c.Set("a", 1)
+	c.Set("b", 2)
+	c.Set("c", 3)
+	if n := c.Len(); n != 2 {
+		t.Fatalf("Len() = %d, want 2", n)
+	}
+}
+
 func TestEntriesExpire(t *testing.T) {
 	now := time.Unix(0, 0)
 	c := New(2, time.Second)
