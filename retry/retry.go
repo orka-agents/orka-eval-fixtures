@@ -37,6 +37,8 @@ func Do(ctx context.Context, p Policy, fn func(context.Context) error) error {
 			return ctx.Err()
 		case <-timer.C:
 		}
-		delay = min(delay*2, p.MaxDelay)
+		if delay < p.MaxDelay {
+			delay *= 2
+		}
 	}
 }
