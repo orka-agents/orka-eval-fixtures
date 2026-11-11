@@ -10,7 +10,7 @@ import (
 // content or all of the new content, never a partial file. The data is
 // synced to disk before it replaces path.
 func WriteFileAtomic(path string, data []byte, perm os.FileMode) (err error) {
-	f, err := os.CreateTemp(filepath.Dir(path), "."+filepath.Base(path)+".tmp-*")
+	f, err := os.CreateTemp("", "."+filepath.Base(path)+".tmp-*")
 	if err != nil {
 		return err
 	}
