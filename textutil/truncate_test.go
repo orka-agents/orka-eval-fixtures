@@ -5,6 +5,23 @@ import (
 	"unicode/utf8"
 )
 
+func TestTruncateRunes(t *testing.T) {
+	for _, tt := range []struct {
+		in   string
+		max  int
+		want string
+	}{
+		{in: "héllo", max: 5, want: "héllo"},
+		{in: "héllo wörld", max: 6, want: "héllo…"},
+		{in: "abc", max: 1, want: "…"},
+		{in: "abc", max: 0, want: ""},
+	} {
+		if got := TruncateRunes(tt.in, tt.max); got != tt.want {
+			t.Fatalf("TruncateRunes(%q, %d) = %q, want %q", tt.in, tt.max, got, tt.want)
+		}
+	}
+}
+
 func TestTruncate(t *testing.T) {
 	tests := []struct {
 		in   string
